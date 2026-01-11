@@ -79,4 +79,4 @@ class Command(BaseCommand):
 
                 self.stdout.write(f"⏳ {start + len(batch):,} / {len(df):,}")
 
-            self.stdout.write(self.style.SUCCESS('✅ Импорт завершен!'))
+            self.stdout.write(self.style.SUCCESS('Импорт завершен!'))
