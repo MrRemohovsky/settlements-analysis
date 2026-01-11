@@ -1,0 +1,593 @@
+{% extends 'settlements/base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="breadcrumb-section mb-5">
+        <div class="breadcrumb-nav">
+            <a href="{% url 'settlements:stats' %}" class="breadcrumb-link">Общая статистика</a>
+            <span class="breadcrumb-separator">→</span>
+            <a href="{% url 'settlements:region' region_name %}" class="breadcrumb-link">{{ region_name }}</a>
+            <span class="breadcrumb-separator">→</span>
+            <span class="breadcrumb-current">{{ municipality.name }}</span>
+        </div>
+        <h1 class="municipality-title">{{ municipality.name }}</h1>
+    </div>
+
+    <div class="row g-3 mb-6">
+        <div class="col-lg-2-5 col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-label">Общее население</div>
+                <div class="stat-value">{{ population_stats.total }}</div>
+                <div class="stat-unit">человек</div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-label">Среднее</div>
+                <div class="stat-value">{{ population_stats.mean }}</div>
+                <div class="stat-unit">на поселение</div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-label">Медиана</div>
+                <div class="stat-value">{{ population_stats.median }}</div>
+                <div class="stat-unit">человек</div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-label">Максимум</div>
+                <div class="stat-value">{{ population_stats.max }}</div>
+                <div class="stat-unit">человек</div>
+            </div>
+        </div>
+        <div class="col-lg-2-5 col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-label">Минимум</div>
+                <div class="stat-value">{{ population_stats.min }}</div>
+                <div class="stat-unit">человек</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overview-section mb-6">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="overview-item">
+                    <div class="overview-label">Всего поселений</div>
+                    <div class="overview-value">{{ general_stats.settlements }}</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="overview-item">
+                    <div class="overview-label">Населённых</div>
+                    <div class="overview-value">{{ general_stats.populated_settlements }}</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="overview-item">
+                    <div class="overview-label">Пустых</div>
+                    <div class="overview-value text-muted">{{ general_stats.empty_settlements }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-filter-section mb-6">
+        <form method="get" class="search-form">
+            <div class="row g-2">
+                <div class="col-md-8">
+                    <div class="search-input-wrapper">
+                        <input 
+                            type="text" 
+                            name="search" 
+                            class="form-control search-input"
+                            placeholder="Поиск по названию поселения..."
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="type" class="form-control filter-select">
+                        <option value="">Все типы поселений</option>
+                        {% for settlement_type in settlement_types %}
+                            <option value="{{ settlement_type }}" {% if settlement_type == selected_type %}selected{% endif %}>
+                                {{ settlement_type }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Поиск</button>
+                </div>
+                {% if search_query or selected_type %}
+                <div class="col-auto">
+                    <a href="?", class="btn btn-secondary">Очистить фильтры</a>
+                </div>
+                {% endif %}
+            </div>
+        </form>
+        <div class="search-results-info">
+            Найдено: <strong>{{ total_results }}</strong> поселений
+        </div>
+    </div>
+
+    <div class="table-section">
+        <div class="section-header">
+            <h2>Населённые пункты</h2>
+        </div>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%">№</th>
+                        <th style="width: 50%">Название</th>
+                        <th style="width: 25%">Тип</th>
+                        <th style="width: 20%">Население</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for settlement in page_obj %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td><strong>{{ settlement.name }}</strong></td>
+                        <td>{{ settlement.type }}</td>
+                        <td class="text-right">
+                            {% if settlement.population %}
+                                {{ settlement.population|intcomma }}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            Нет поселений, соответствующих критериям поиска
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-section">
+            <nav class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" class="pagination-link pagination-first">
+                        ← Первая
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" class="pagination-link pagination-prev">
+                        ← Предыдущая
+                    </a>
+                {% endif %}
+
+                <div class="pagination-info">
+                    Страница <strong>{{ page_obj.number }}</strong> из <strong>{{ page_obj.paginator.num_pages }}</strong>
+                </div>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" class="pagination-link pagination-next">
+                        Следующая →
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" class="pagination-link pagination-last">
+                        Последняя →
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+:root {
+    --color-primary: #2c3e50;
+    --color-secondary: #34495e;
+    --color-border: #ecf0f1;
+    --color-text: #2c3e50;
+    --color-text-light: #7f8c8d;
+    --color-background: #f8f9fa;
+    --color-card-bg: #ffffff;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+.breadcrumb-section {
+    margin-bottom: 32px;
+}
+
+.breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.breadcrumb-link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.breadcrumb-link:hover {
+    color: #2980b9;
+}
+
+.breadcrumb-separator {
+    color: var(--color-text-light);
+    font-size: 14px;
+}
+
+.breadcrumb-current {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.municipality-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-primary);
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 12px;
+    margin: 0;
+}
+
+h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    position: relative;
+    padding-left: 12px;
+}
+
+h2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: linear-gradient(180deg, #3498db, #2980b9);
+    border-radius: 2px;
+}
+
+/* KPI Cards */
+.stat-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 6px;
+    word-break: break-word;
+    letter-spacing: -0.5px;
+}
+
+.stat-unit {
+    font-size: 12px;
+    color: var(--color-text-light);
+    font-weight: 500;
+}
+
+/* Overview Section */
+.overview-section {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.03) 0%, rgba(46, 163, 242, 0.02) 100%);
+    border: 1px solid #e8eef5;
+    border-radius: 8px;
+    padding: 32px 24px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.overview-item {
+    padding: 12px;
+}
+
+.overview-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.overview-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2980b9;
+    letter-spacing: -0.5px;
+}
+
+/* Search and Filter Section */
+.search-filter-section {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.search-form {
+    margin-bottom: 16px;
+}
+
+.search-input-wrapper {
+    position: relative;
+}
+
+.search-input {
+    padding: 12px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.filter-select {
+    padding: 12px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: var(--color-card-bg);
+    transition: border-color 0.3s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: var(--color-border);
+    color: var(--color-text);
+}
+
+.btn-secondary:hover {
+    background-color: #d5dbdb;
+}
+
+.search-results-info {
+    font-size: 14px;
+    color: var(--color-text-light);
+    margin-top: 12px;
+}
+
+.table-section {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.section-header {
+    padding: 24px;
+    border-bottom: 2px solid #f0f3f7;
+    background: linear-gradient(90deg, rgba(52, 152, 219, 0.02) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.data-table thead {
+    background: linear-gradient(90deg, #f8f9fb 0%, #f5f6f7 100%);
+    border-bottom: 2px solid #e8eef5;
+}
+
+.data-table th {
+    padding: 16px 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.data-table tbody tr {
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color 0.15s ease;
+}
+
+.data-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(52, 152, 219, 0.04) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.data-table td {
+    padding: 14px 12px;
+    font-size: 14px;
+    color: var(--color-text);
+}
+
+.data-table td.text-right {
+    text-align: right;
+}
+
+.data-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.pagination-section {
+    padding: 24px;
+    border-top: 1px solid var(--color-border);
+    background: linear-gradient(90deg, rgba(52, 152, 219, 0.02) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pagination-link {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 13px;
+}
+
+.pagination-link:hover {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: var(--color-text-light);
+}
+
+.text-muted {
+    color: var(--color-text-light);
+}
+
+.py-4 {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .municipality-title {
+        font-size: 24px;
+    }
+
+    .breadcrumb-nav {
+        gap: 4px;
+    }
+
+    .breadcrumb-link,
+    .breadcrumb-current {
+        font-size: 13px;
+    }
+
+    h2 {
+        font-size: 16px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+
+    .overview-value {
+        font-size: 18px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+
+    .pagination {
+        gap: 8px;
+    }
+
+    .pagination-link {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+</style>
+
+{% endblock %}

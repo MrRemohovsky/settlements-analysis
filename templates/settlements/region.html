@@ -5,9 +5,8 @@
 <div class="container py-5">
     <div class="breadcrumb-section mb-5">
         <a href="{% url 'settlements:stats' %}" class="breadcrumb-link">← Общая статистика</a>
-        <h1 class="region-title">{{ object.name }}</h1>
+        <h1 class="region-title">{{ region_name }}</h1>
     </div>
-
     <div class="row g-3 mb-6">
         <div class="col-lg-2-5 col-md-3 col-sm-6">
             <div class="stat-card">
@@ -93,7 +92,11 @@
                     {% for municipality in municipalities %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td><strong>{{ municipality.municipality }}</strong></td>
+                         <td>
+                            <a href="{% url 'settlements:municipality' region_name municipality.municipality %}" target="_blank" class="municipality-link">
+                                <strong>{{ municipality.municipality }}</strong>
+                            </a>
+                        </td>
                         <td class="text-center">{{ municipality.settlements_count }}</td>
                         <td class="text-right">{{ municipality.population_total }}</td>
                     </tr>
@@ -238,7 +241,6 @@ h2::before {
     font-weight: 500;
 }
 
-/* Overview Section */
 .overview-section {
     background: linear-gradient(135deg, rgba(52, 152, 219, 0.03) 0%, rgba(46, 163, 242, 0.02) 100%);
     border: 1px solid #e8eef5;
