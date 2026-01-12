@@ -67,7 +67,6 @@ class Command(BaseCommand):
                         name=row['settlement'],
                         type=row['category'],
                         population=int(row.get('population', 0)),
-                        children_population=int(row.get('children', 0)),
                         municipality=municipality
                     ))
 

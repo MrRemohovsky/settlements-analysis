@@ -29,7 +29,6 @@ class Settlement(models.Model):
     name = models.CharField(max_length=200, verbose_name="Населенный пункт")
     type = models.CharField(max_length=50, verbose_name="Тип НП")
     population = models.PositiveIntegerField(null=True, blank=True, verbose_name="Население")
-    children_population = models.PositiveIntegerField(null=True, blank=True, verbose_name="Дети")
 
     municipality = models.ForeignKey(Municipality, on_delete=models.CASCADE, related_name='settlements')
 

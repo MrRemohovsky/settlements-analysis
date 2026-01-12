@@ -10,5 +10,5 @@ def get_stats(df):
             'mean': format_number(int(df.mean())),
             'median': format_number(int(df.median())),
             'max': format_number(int(df.max())),
-            'min': format_number(int(df[df > 0].min())),
+            'min': format_number(int(df[df > 0].min()) if not df[df > 0].empty else 0),
         }
