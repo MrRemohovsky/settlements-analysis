@@ -55,9 +55,12 @@ class TotalStatsService:
         return get_stats(municipality_pops)
 
     @staticmethod
-    def get_settlement_types_distribution():
+    def get_settlement_types_distribution(q_filter=None):
         """Распределение населения по типам поселений"""
-        settlements = Settlement.objects.values_list('type', 'population')
+        if not q_filter:
+            q_filter = Q()
+
+        settlements = Settlement.objects.filter(q_filter).values_list('type', 'population')
 
         df = pd.DataFrame(settlements, columns=['type', 'population'])
 

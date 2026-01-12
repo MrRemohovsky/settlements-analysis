@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
@@ -30,7 +31,9 @@ class RegionDetailView(TemplateView):
         context['population_stats'] = TotalStatsService.get_population_stats_by_region(region_name)
         context['municipalities'] = MunicipalityStatsService.get_municipalities_by_region(region_name)
         context['region_name'] = region_name
-
+        context['settlement_types_chart'] = TotalStatsService.get_settlement_types_distribution(
+            Q(municipality__region__name=region_name)
+        )
         return context
 
 
@@ -77,5 +80,8 @@ class MunicipalityDetailView(TemplateView):
             region_name, municipality_name
         )
         context['total_results'] = paginator.count
+        context['settlement_types_chart'] = TotalStatsService.get_settlement_types_distribution(
+            Q(municipality__name=municipality_name, municipality__region__name=region_name)
+        )
 
         return context
