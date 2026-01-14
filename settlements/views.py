@@ -17,6 +17,8 @@ class StatsView(TemplateView):
         context['population_stats'] = TotalStatsService.get_population_stats()
         context['settlement_types'] = TotalStatsService.get_settlement_types_distribution()
         context['general_stats'] = TotalStatsService.get_general_stats()
+        context['population_distribution'] = TotalStatsService.get_population_distribution()
+
         return context
 
 
@@ -34,6 +36,10 @@ class RegionDetailView(TemplateView):
         context['settlement_types_chart'] = TotalStatsService.get_settlement_types_distribution(
             Q(municipality__region__name=region_name)
         )
+        context['population_distribution'] = TotalStatsService.get_population_distribution(
+            Q(municipality__region__name=region_name)
+        )
+
         return context
 
 
@@ -83,5 +89,7 @@ class MunicipalityDetailView(TemplateView):
         context['settlement_types_chart'] = TotalStatsService.get_settlement_types_distribution(
             Q(municipality__name=municipality_name, municipality__region__name=region_name)
         )
-
+        context['population_distribution'] = TotalStatsService.get_population_distribution(
+            Q(municipality__name=municipality.name, municipality__region__name=region_name)
+        )
         return context

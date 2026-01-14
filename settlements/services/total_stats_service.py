@@ -73,7 +73,7 @@ class TotalStatsService:
 
     @staticmethod
     def get_general_stats(region_name=None):
-        """Общая статистика: регионы, муниципалитеты, поселения, пустые"""
+        """Общая статистика по регионам страны: регионы, муниципалитеты, поселения, пустые"""
         from ..models import Region, Municipality
 
         add_q_m = Q()
@@ -99,3 +99,13 @@ class TotalStatsService:
             'empty_settlements': empty_settlements,
             'populated_settlements': total_settlements - empty_settlements,
         }
+
+    @staticmethod
+    def get_population_distribution(q_filter=None):
+        import json
+        from settlements.models import Settlement
+
+        population_distribution = list(
+            Settlement.objects.filter(Q(population__gt=0) & (q_filter or Q())).values('population')
+        )
+        return json.dumps(population_distribution)

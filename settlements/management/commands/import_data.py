@@ -76,6 +76,6 @@ class Command(BaseCommand):
                     batch_size=1000
                 )
 
-                self.stdout.write(f"⏳ {start + len(batch):,} / {len(df):,}")
+                self.stdout.write(f"{start + len(batch):,} / {len(df):,}")
 
             self.stdout.write(self.style.SUCCESS('Импорт завершен!'))

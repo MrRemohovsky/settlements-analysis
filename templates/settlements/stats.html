@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container py-1">
-    <h1 class="mb-5">Общая статистика</h1>
+    <h1 class="mb-5">Общая статистика по регионам страны</h1>
     <div class="row g-3 mb-6">
         <div class="col-lg-2-5 col-md-3 col-sm-6">
             <div class="stat-card">
@@ -65,7 +65,7 @@
             </div>
             <div class="col-md-3">
                 <div class="overview-item">
-                    <div class="overview-label">Живых поселений</div>
+                    <div class="overview-label">Населенных поселений</div>
                     <div class="overview-value">{{ general_stats.populated_settlements|intcomma }}</div>
                 </div>
             </div>
@@ -85,6 +85,15 @@
         </div>
         <div class="chart-container">
             <canvas id="settlementTypesChart" height="80"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-section mb-6">
+        <div class="section-header">
+            <h2>Плотность населения поселений</h2>
+        </div>
+        <div class="chart-container">
+            <div id="populationDistributionChart" style="width:100%;height:500px;"></div>
         </div>
     </div>
 
@@ -375,12 +384,25 @@ h2::before {
 }
 </style>
 
-    {% block extra_js %}
-    <script src="{% static 'js/settlement-types-chart.js' %}"></script>
-    <script>
-        const settlementTypes = {{ settlement_types|safe }};
-        initSettlementTypesChart('settlementTypesChart', settlementTypes);
-    </script>
-    {% endblock %}
-
 {% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+
+<script src="{% static 'js/settlement-types-chart.js' %}"></script>
+
+<script>
+    const settlementTypes = {{ settlement_types|safe }};
+    initSettlementTypesChart('settlementTypesChart', settlementTypes);
+</script>
+
+<script src="{% static 'js/population-distribution-chart.js' %}"></script>
+
+<script>
+    const populationDistribution = {{ population_distribution|safe }};
+    initPopulationDistributionChart('populationDistributionChart', populationDistribution);
+</script>
+{% endblock %}
+
+
+

@@ -5,7 +5,7 @@
 <div class="container py-5">
     <div class="breadcrumb-section mb-5">
         <div class="breadcrumb-nav">
-            <a href="{% url 'settlements:stats' %}" class="breadcrumb-link">Общая статистика</a>
+            <a href="{% url 'settlements:stats' %}" class="breadcrumb-link">Общая статистика по регионам страны</a>
             <span class="breadcrumb-separator">→</span>
             <a href="{% url 'settlements:region' region_name %}" class="breadcrumb-link">{{ region_name }}</a>
             <span class="breadcrumb-separator">→</span>
@@ -62,14 +62,15 @@
             </div>
             <div class="col-md-4">
                 <div class="overview-item">
-                    <div class="overview-label">Населённых</div>
+                    <div class="overview-label">Населенных поселений</div>
                     <div class="overview-value">{{ general_stats.populated_settlements }}</div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="overview-item">
-                    <div class="overview-label">Пустых</div>
+                    <div class="overview-label">Пустых поселений</div>
                     <div class="overview-value text-muted">{{ general_stats.empty_settlements }}</div>
+                    <div class="overview-subtext">(население отсутствует)</div>
                 </div>
             </div>
         </div>
@@ -81,6 +82,15 @@
         </div>
         <div class="chart-container">
             <canvas id="settlementTypesChart" height="80"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-section mb-6">
+        <div class="section-header">
+            <h2>Плотность населения поселений</h2>
+        </div>
+        <div class="chart-container">
+            <div id="populationDistributionChart" style="width:100%;height:500px;"></div>
         </div>
     </div>
 
@@ -622,4 +632,11 @@ h2::before {
         initSettlementTypesChart('settlementTypesChart', settlementTypes);
     </script>
 
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <script src="{% static 'js/population-distribution-chart.js' %}"></script>
+
+    <script>
+        const populationDistribution = {{ population_distribution|safe }};
+        initPopulationDistributionChart('populationDistributionChart', populationDistribution);
+    </script>
 {% endblock %}
