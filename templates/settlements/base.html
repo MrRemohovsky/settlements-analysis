@@ -11,14 +11,9 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'settlements:stats' %}"></a>
-            <div class="navbar-nav">
-            </div>
-        </div>
     </nav>
 
-    <main class="container my-5">
+    <main class="container" style="padding-top: 0;">
         {% block content %}{% endblock %}
     </main>
 
