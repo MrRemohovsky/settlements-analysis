@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 
 from .models import Municipality
 from .facades import StatisticsFacade
-
+from settlements.state.breadcrumb import BreadcrumbState
 
 class StatsView(TemplateView):
     template_name = 'settlements/stats.html'
@@ -20,6 +20,10 @@ class StatsView(TemplateView):
         context['settlement_types'] = facade.get_settlement_types_distribution()
         context['general_stats'] = facade.get_general_stats()
         context['population_distribution'] = facade.get_population_distribution()
+
+        breadcrumb = BreadcrumbState()
+        breadcrumb.clear()
+        context['breadcrumb'] = breadcrumb.get_breadcrumb()
 
         return context
 
@@ -43,6 +47,10 @@ class RegionDetailView(TemplateView):
         context['population_distribution'] = facade.get_population_distribution(
             Q(municipality__region__name=region_name)
         )
+
+        breadcrumb = BreadcrumbState()
+        breadcrumb.set_region(region_name)
+        context['breadcrumb'] = breadcrumb.get_breadcrumb()
 
         return context
 
@@ -99,5 +107,10 @@ class MunicipalityDetailView(TemplateView):
         context['population_distribution'] = facade.get_population_distribution(
             Q(municipality__name=municipality.name, municipality__region__name=region_name)
         )
+
+        breadcrumb = BreadcrumbState()
+        breadcrumb.set_region(region_name)
+        breadcrumb.set_municipality(municipality_name)
+        context['breadcrumb'] = breadcrumb.get_breadcrumb()
 
         return context
