@@ -400,9 +400,6 @@ h2::before {
 
 <script>
     const populationDistribution = {{ population_distribution|safe }};
-    initPopulationDistributionChart('populationDistributionChart', populationDistribution);
+    initPopulationDistributionChart('populationDistributionChart', populationDistribution, 40);
 </script>
 {% endblock %}
-
-
-

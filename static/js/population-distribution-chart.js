@@ -1,9 +1,12 @@
-function initPopulationDistributionChart(canvasId, populationData) {
+function initPopulationDistributionChart(canvasId, populationData, step = 1) {
     const container = document.getElementById(canvasId);
     if (!container || !populationData || populationData.length === 0) {
         return;
     }
-    const data = populationData.filter(item => item.population > 0);
+
+    const data = populationData
+        .filter(item => item.population > 0)
+        .filter((_, i) => i % step === 0);
 
     const xValues = data.map(() => Math.random());
     const yValues = data.map(item => item.population);
@@ -32,6 +35,5 @@ function initPopulationDistributionChart(canvasId, populationData) {
         showlegend: false
     };
 
-    console.log('trace:', trace);
     Plotly.newPlot(canvasId, [trace], layout, {responsive: true});
 }
