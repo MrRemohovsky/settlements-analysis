@@ -1,7 +1,7 @@
 import pandas as pd
 from django.db.models import Q
 
-from settlements.subsystems import DataFetcher, DataProcessor, DataFormatter
+from settlements.services import DataFetcher, DataProcessor, DataFormatter
 
 
 class StatisticsFacade:

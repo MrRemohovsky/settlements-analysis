@@ -2,7 +2,7 @@ from django.test import TestCase
 import pandas as pd
 
 from settlements.facades import StatisticsFacade
-from settlements.subsystems import DataProcessor
+from settlements.services import DataProcessor
 
 
 class DataProcessorUnitTestCase(TestCase):
