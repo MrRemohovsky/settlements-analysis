@@ -1,4 +1,3 @@
-
 function initSettlementTypesChart(canvasId, data) {
     const labels = data.map(item => item.type);
     const populations = data.map(item => item.population);
